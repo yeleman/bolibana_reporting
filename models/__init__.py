@@ -3,3 +3,6 @@
 # maintainer: rgaudin
 
 from Period import *
+from Entity import *
+from EntityType import *
+from Report import *

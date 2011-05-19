@@ -78,7 +78,7 @@ class Period(models.Model):
     PERIOD_TYPES = (
         (DAY, u"Day"),
         (WEEK, u"Week"),
-        (MONTH, u"MONTH"),
+        (MONTH, u"Month"),
         (QUARTER, u"Quarter"),
         (SEMESTER, u"Semester"),
         (YEAR, u"Year"),
@@ -90,6 +90,7 @@ class Period(models.Model):
     period_type = models.CharField(max_length=15, \
                                    choices=PERIOD_TYPES, default=CUSTOM)
 
+    objects = models.Manager()
     days = DayManager()
     weeks = WeekManager()
     months = MonthManager()
@@ -117,7 +118,11 @@ class Period(models.Model):
         return self.name()
 
     def name(self):
-        return self.middle().strftime('%c')
+        try:
+            cls = eval(u"%sPeriod" % self.period_type.title())
+            return cls.objects.get(id=self.id).name()
+        except:
+            return self.middle().strftime('%c')
 
     def next(self):
         ''' returns next period in time '''
