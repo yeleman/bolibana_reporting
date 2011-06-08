@@ -13,6 +13,19 @@ from bolibana_auth.models import Provider
 from bolibana_reporting.models import Period
 
 
+class UnValidatedManager(models.Manager):
+
+    def get_query_set(self):
+        return super(UnValidatedManager, self).get_query_set() \
+                        .filter(_status__lt=Report.STATUS_VALIDATED)
+
+class ValidatedManager(models.Manager):
+
+    def get_query_set(self):
+        return super(ValidatedManager, self).get_query_set() \
+                        .filter(_status__gte=Report.STATUS_VALIDATED)
+
+
 class Report(models.Model):
 
     STATUS_UNSAVED = 0
@@ -61,6 +74,11 @@ class Report(models.Model):
                                     verbose_name=_(u"Modified By"))
     modified_on = models.DateTimeField(auto_now=True, \
                                        verbose_name=_(u"Modified On"))
+
+    # django manager first
+    objects = models.Manager()
+    unvalidated = UnValidatedManager()
+    validated = ValidatedManager()
 
     def __unicode__(self):
         return ugettext(u"%(entity)s/%(period)s") % {'entity': self.entity, \

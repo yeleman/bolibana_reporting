@@ -129,10 +129,18 @@ class Period(models.Model):
             # TRANSLATORS: Python date format for Generic .name()
             return self.middle().strftime(ugettext('%c'))
 
+    def full_name(self):
+        return self.name()
+
     def next(self):
         ''' returns next period in time '''
         return self.find_create_by_date(self.middle() \
                                         + timedelta(self.delta()))
+
+    def previous(self):
+        ''' returns next period in time '''
+        return self.find_create_by_date(self.middle() \
+                                        - timedelta(self.delta()))
 
     @classmethod
     def boundaries(cls, date_obj):
@@ -193,6 +201,9 @@ class Period(models.Model):
     @classmethod
     def find_create_by_date(cls, date_obj):
         ''' creates a period to fit the provided date in '''
+        if not isinstance(date_obj, datetime):
+            date_obj = datetime.fromtimestamp(float(date_obj.strftime('%s')))
+
         try:
             period = [period for period in cls.objects.all() \
                                         if period.start_on <= date_obj \
@@ -265,6 +276,11 @@ class MonthPeriod(Period):
         # Translators: Python's date format for MonthPeriod.name()
         return ugettext(u"%(formatted_date)s") % \
                  {'formatted_date': self.middle().strftime(ugettext('%m %Y'))}
+
+    def full_name(self):
+        # Translators: Python's date format for MonthPeriod.full_name()
+        return ugettext(u"%(formatted_date)s") % \
+                 {'formatted_date': self.middle().strftime(ugettext('%B %Y'))}
 
     @classmethod
     def delta(self):
