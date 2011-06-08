@@ -19,6 +19,7 @@ class UnValidatedManager(models.Manager):
         return super(UnValidatedManager, self).get_query_set() \
                         .filter(_status__lt=Report.STATUS_VALIDATED)
 
+
 class ValidatedManager(models.Manager):
 
     def get_query_set(self):
