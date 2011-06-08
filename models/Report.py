@@ -53,6 +53,7 @@ class Report(models.Model):
         unique_together = ('period', 'entity', 'type')
         verbose_name = _(u"Report")
         verbose_name_plural = _(u"Reports")
+        abstract = True
 
     _status = models.PositiveIntegerField(choices=STATUSES, \
                                           default=STATUS_CREATED, \
