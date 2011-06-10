@@ -19,3 +19,14 @@ class Entity(MPTTModel):
 
     def __unicode__(self):
         return self.name
+
+    def display_name(self):
+        return self.name.title()
+
+    def display_full_name(self):
+        return u"%(name)s/%(parent)s" % \
+               {'name': self.display_name(), 'parent': self.parent.display_name()}
+
+    def display_code_name(self):
+        return u"%(code)s/%(name)s" % \
+               {'code': self.slug, 'name': self.display_name()}

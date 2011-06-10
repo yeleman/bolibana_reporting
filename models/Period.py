@@ -268,7 +268,6 @@ class MonthPeriod(Period):
               - timedelta(cls.ONE_MICROSECOND)
         return (start, end)
 
-
 class YearPeriod(Period):
 
     class Meta:

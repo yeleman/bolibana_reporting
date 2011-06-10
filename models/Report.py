@@ -5,14 +5,18 @@
 from django.dispatch import receiver
 from django.db import models
 from django.db.models.signals import pre_save, post_save
+from django.contrib.auth.models import User
+import reversion
 
 from bolibana_auth.models import *
 from bolibana_reporting.models import Period
 
 
 class ReportError(object):
+    """ Single meaningful business-logic only error """
     def __init__(self):
         self.slug = ''
+        self.type = ''
 
     def short(self):
         return u"Error on %s" % self.slug
@@ -25,6 +29,7 @@ class ReportError(object):
 
 
 class ReportErrorStack(object):
+    """ Collection of ReportError for easy manipulation/forward to UI """
 
     def __init__(self):
         self.errors = []
@@ -36,6 +41,15 @@ class ReportErrorStack(object):
         return u"Errors on: %s" % u",".join(self.errors[:3])
 
 
+class InvalidReportData(Exception):
+    """ StandardException with a .stack property linking a ReportErrorStack """
+
+    def __init__(self, message, stack):
+        Exception.__init__(self, message)
+
+        self.stack = stack
+
+
 class Report(models.Model):
 
     STATUS_UNSAVED = 0
@@ -43,20 +57,26 @@ class Report(models.Model):
     STATUS_INCOMPLETE = 2
     STATUS_ERRONEOUS = 3
     STATUS_COMPLETE = 4
-    # validated?
-    STATUS_CLOSED = 5
+    STATUS_VALIDATED = 5
+    STATUS_CLOSED = 6
     STATUSES = ((STATUS_UNSAVED, u"Unsaved"),
                 (STATUS_CREATED, u"Created"),
                 (STATUS_INCOMPLETE, u"Incomplete"),
                 (STATUS_ERRONEOUS, u"Erroneous"),
                 (STATUS_COMPLETE, u"Complete"),
+                (STATUS_VALIDATED, u"Validated"),
                 (STATUS_CLOSED, u"Closed"))
+
+    TYPE_SOURCE = 0
+    TYPE_AGGREGATED = 1
+    TYPES = ((TYPE_SOURCE, u"Source"), (TYPE_AGGREGATED, u"Aggregated"))
 
     class Meta:
         app_label = 'bolibana_reporting'
-        unique_together = ('period', 'entity')
+        unique_together = ('period', 'entity', 'type')
 
-    _status = models.CharField(max_length=1, choices=STATUSES)
+    _status = models.PositiveIntegerField(choices=STATUSES)
+    type = models.PositiveIntegerField(choices=TYPES)
     receipt = models.CharField(max_length=15, null=True, blank=True)
     period = models.ForeignKey('Period', related_name='reports')
     entity = models.ForeignKey('Entity', related_name='reports')
@@ -73,6 +93,7 @@ class Report(models.Model):
 
     @classmethod
     def create(cls, period, entity, author, *args, **kwargs):
+        """ create a blank report filling all non-required fields """
         report = cls(period=period, entity=entity, created_by=author, \
                      modified_by=author, _status=cls.STATUS_UNSAVED)
         for arg, value in kwargs.items():
@@ -98,24 +119,9 @@ def pre_save_report(sender, instance, **kwargs):
 
 class ReportPart(models.Model):
 
-    STATUS_UNSAVED = 0
-    STATUS_CREATED = 1
-    STATUS_INCOMPLETE = 2
-    STATUS_ERRONEOUS = 3
-    STATUS_COMPLETE = 4
-    # validated?
-    STATUS_CLOSED = 5
-    STATUSES = ((STATUS_UNSAVED, u"Unsaved"),
-                (STATUS_CREATED, u"Created"),
-                (STATUS_INCOMPLETE, u"Incomplete"),
-                (STATUS_ERRONEOUS, u"Erroneous"),
-                (STATUS_COMPLETE, u"Complete"),
-                (STATUS_CLOSED, u"Closed"))
-
     class Meta:
         app_label = 'bolibana_reporting'
 
-    #_status = models.CharField(max_length=1, choices=STATUSES)
     report = models.ForeignKey('Report', related_name='+', \
                                null=True, blank=True)
 
@@ -124,3 +130,17 @@ class ReportPart(models.Model):
             return u"Part/%s" % self.report.__unicode__()
         else:
             return u"Part/unattached"
+
+    """def save(self, *args, **kwargs):
+        # check that data complies with logic rules
+        # if not, raise custom exception containing errors details.
+        if not self.is_valid():
+            raise InvalidReportData(self.error_stack())
+
+        super(ReportPart, self).save(self, *args, **kwargs)"""
+
+    def error_stack(self):
+        return ReportErrorStack()
+
+    def is_valid(self):
+        return True
