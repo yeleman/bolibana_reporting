@@ -75,9 +75,9 @@ class Report(models.Model):
         app_label = 'bolibana_reporting'
         unique_together = ('period', 'entity', 'type')
 
-    _status = models.PositiveIntegerField(choices=STATUSES)
+    _status = models.PositiveIntegerField(choices=STATUSES, default=STATUS_CREATED)
     type = models.PositiveIntegerField(choices=TYPES)
-    receipt = models.CharField(max_length=15, null=True, blank=True)
+    receipt = models.CharField(max_length=15, unique=True, blank=True, null=False)
     period = models.ForeignKey('Period', related_name='reports')
     entity = models.ForeignKey('Entity', related_name='reports')
     created_by = models.ForeignKey('bolibana_auth.Provider', \
@@ -112,35 +112,18 @@ class Report(models.Model):
 
 @receiver(pre_save, sender=Report)
 def pre_save_report(sender, instance, **kwargs):
+    print "PRE SAVE"
     """ change _status property of Report on save() at creation """
     if instance._status == instance.STATUS_UNSAVED:
-        instance._status = instance.STATUS_CREATED
+        instance._status = instance.STATUS_CLOSED
+    if not instance.receipt:
+        instance.receipt = u"%(day)d-REPORT_ID/%(location)d" \
+                           % {'day': self.created_on.strftime('%j'), \
+                              'location': self.entity.id}
 
+@receiver(post_save, sender=Report)
+def post_save_report(sender, instance, **kwargs):
+    if 'REPORT_ID' in instance.receipt:
+        instance.receipt = instance.receipt.replace('REPORT_ID', instance.id)
+        instance.save()
 
-class ReportPart(models.Model):
-
-    class Meta:
-        app_label = 'bolibana_reporting'
-
-    report = models.ForeignKey('Report', related_name='+', \
-                               null=True, blank=True)
-
-    def __unicode__(self):
-        if self.report:
-            return u"Part/%s" % self.report.__unicode__()
-        else:
-            return u"Part/unattached"
-
-    """def save(self, *args, **kwargs):
-        # check that data complies with logic rules
-        # if not, raise custom exception containing errors details.
-        if not self.is_valid():
-            raise InvalidReportData(self.error_stack())
-
-        super(ReportPart, self).save(self, *args, **kwargs)"""
-
-    def error_stack(self):
-        return ReportErrorStack()
-
-    def is_valid(self):
-        return True
