@@ -63,7 +63,7 @@ class Report(models.Model):
                                        verbose_name=_(u"Modified On"))
 
     def __unicode__(self):
-        return ugtetext(u"%(entity)s/%(period)s") % {'entity': self.entity, \
+        return ugettext(u"%(entity)s/%(period)s") % {'entity': self.entity, \
                                            'period': self.period}
 
     @classmethod
