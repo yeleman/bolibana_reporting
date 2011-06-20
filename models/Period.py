@@ -232,7 +232,7 @@ class DayPeriod(Period):
         return cls.DAY
 
     def name(self):
-        # TRANSLATORS: Python's date format for DayPeriod.name()
+        # Translators: Python's date format for DayPeriod.name()
         return self.middle().strftime(ugettext('%x'))
 
     @classmethod
@@ -262,7 +262,7 @@ class MonthPeriod(Period):
         return cls.MONTH
 
     def name(self):
-        # TRANSLATORS: Python's date format for MonthPeriod.name()
+        # Translators: Python's date format for MonthPeriod.name()
         return ugettext(u"%(formatted_date)s") % \
                  {'formatted_date': self.middle().strftime(ugettext('%m %Y'))}
 
@@ -296,7 +296,7 @@ class YearPeriod(Period):
         return cls.YEAR
 
     def name(self):
-        # TRANSLATORS: Python's date format for YearPeriod.name()
+        # Translators: Python's date format for YearPeriod.name()
         return self.middle().strftime(ugettext('%Y'))
 
     @classmethod
