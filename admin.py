@@ -17,17 +17,17 @@ class EntityTypeAdmin(admin.ModelAdmin):
     pass
 
 
-class Period(admin.ModelAdmin):
+class PeriodAdmin(admin.ModelAdmin):
 
     pass
 
 
-class MonthPeriod(admin.ModelAdmin):
+class MonthPeriodAdmin(admin.ModelAdmin):
 
     pass
 
 
-class YearPeriod(admin.ModelAdmin):
+class YearPeriodAdmin(admin.ModelAdmin):
 
     pass
 
