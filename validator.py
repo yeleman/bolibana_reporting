@@ -6,6 +6,7 @@ from bolibana_reporting.errors import ErrorManager
 
 
 class DataValidator(object):
+    """ Interface for business-logic data validators """
 
     errors = ErrorManager()
 
@@ -16,7 +17,9 @@ class DataValidator(object):
         pass
 
     def get(self, slug):
+        """ data for slug code """
         return self.data.get(slug)
 
     def field_name(self, slug):
+        """ human-readable name representing slug """
         return self.data.field_name(slug)

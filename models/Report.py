@@ -6,48 +6,11 @@ from django.dispatch import receiver
 from django.db import models
 from django.db.models.signals import pre_save, post_save
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _, ugettext
 import reversion
 
-from bolibana_auth.models import *
+from bolibana_auth.models import Provider
 from bolibana_reporting.models import Period
-
-
-class ReportError(object):
-    """ Single meaningful business-logic only error """
-    def __init__(self):
-        self.slug = ''
-        self.type = ''
-
-    def short(self):
-        return u"Error on %s" % self.slug
-
-    def concise(self):
-        return "%s value is not valid" % self.slug
-
-    def full(self):
-        return "The value of the field %s is erroneous" % self.slug
-
-
-class ReportErrorStack(object):
-    """ Collection of ReportError for easy manipulation/forward to UI """
-
-    def __init__(self):
-        self.errors = []
-
-    def short(self):
-        return u"%d errors" % self.errors.__len__()
-
-    def concise(self):
-        return u"Errors on: %s" % u",".join(self.errors[:3])
-
-
-class InvalidReportData(Exception):
-    """ StandardException with a .stack property linking a ReportErrorStack """
-
-    def __init__(self, message, stack):
-        Exception.__init__(self, message)
-
-        self.stack = stack
 
 
 class Report(models.Model):
@@ -69,26 +32,38 @@ class Report(models.Model):
 
     TYPE_SOURCE = 0
     TYPE_AGGREGATED = 1
-    TYPES = ((TYPE_SOURCE, u"Source"), (TYPE_AGGREGATED, u"Aggregated"))
+    TYPES = ((TYPE_SOURCE, _(u"Source")), (TYPE_AGGREGATED, _(u"Aggregated")))
 
     class Meta:
         app_label = 'bolibana_reporting'
         unique_together = ('period', 'entity', 'type')
+        verbose_name = _(u"Report")
+        verbose_name_plural = _(u"Reports")
 
-    _status = models.PositiveIntegerField(choices=STATUSES, default=STATUS_CREATED)
-    type = models.PositiveIntegerField(choices=TYPES)
-    receipt = models.CharField(max_length=15, unique=True, blank=True, null=False)
-    period = models.ForeignKey('Period', related_name='reports')
-    entity = models.ForeignKey('Entity', related_name='reports')
+    _status = models.PositiveIntegerField(choices=STATUSES, \
+                                          default=STATUS_CREATED, \
+                                          verbose_name=_(u"Status"))
+    type = models.PositiveIntegerField(choices=TYPES, verbose_name=_(u"Type"))
+    receipt = models.CharField(max_length=15, unique=True, \
+                               blank=True, null=False, \
+                               verbose_name=_(u"Receipt"))
+    period = models.ForeignKey('Period', related_name='reports', \
+                               verbose_name=_(u"Period"))
+    entity = models.ForeignKey('Entity', related_name='reports', \
+                               verbose_name=_(u"Entity"))
     created_by = models.ForeignKey('bolibana_auth.Provider', \
-                                   related_name='reports')
-    created_on = models.DateTimeField(auto_now_add=True)
+                                   related_name='reports', \
+                                   verbose_name=_(u"Created By"))
+    created_on = models.DateTimeField(auto_now_add=True, \
+                                      verbose_name=_(u"Created On"))
     modified_by = models.ForeignKey('bolibana_auth.Provider', \
-                                    null=True, blank=True)
-    modified_on = models.DateTimeField(auto_now=True)
+                                    null=True, blank=True, \
+                                    verbose_name=_(u"Modified By"))
+    modified_on = models.DateTimeField(auto_now=True, \
+                                       verbose_name=_(u"Modified On"))
 
     def __unicode__(self):
-        return u"%(entity)s/%(period)s" % {'entity': self.entity, \
+        return ugtetext(u"%(entity)s/%(period)s") % {'entity': self.entity, \
                                            'period': self.period}
 
     @classmethod
@@ -109,21 +84,41 @@ class Report(models.Model):
     def status(self):
         return self._status
 
+    @classmethod
+    def generate_receipt(cls, instance):
+        """ generates a reversable text receipt for a Report
+
+        FORMAT:
+            000/sss-111-D
+            000: internal report ID
+            sss: entity slug
+            111: sent day in year
+            D: sent day of week """
+
+        DOW = ['D', 'L', 'M', 'E', 'J', 'V', 'S']
+
+        receipt = '%(id)d/%(entity)s-%(day)s-%(dow)s' \
+                  % {'day': instance.created_on.strftime('%j'), \
+                     'dow': DOW[int(instance.created_on.strftime('%w'))], \
+                     'entity': instance.entity.slug, \
+                     'id': instance.id, \
+                     'period': instance.period.id}
+        return receipt
+
 
 @receiver(pre_save, sender=Report)
 def pre_save_report(sender, instance, **kwargs):
-    print "PRE SAVE"
     """ change _status property of Report on save() at creation """
     if instance._status == instance.STATUS_UNSAVED:
         instance._status = instance.STATUS_CLOSED
+    # following will allow us to detect failure in registration
     if not instance.receipt:
-        instance.receipt = u"%(day)d-REPORT_ID/%(location)d" \
-                           % {'day': self.created_on.strftime('%j'), \
-                              'location': self.entity.id}
+        instance.receipt = 'NO_RECEIPT'
+
 
 @receiver(post_save, sender=Report)
 def post_save_report(sender, instance, **kwargs):
-    if 'REPORT_ID' in instance.receipt:
-        instance.receipt = instance.receipt.replace('REPORT_ID', instance.id)
+    """ generates the receipt """
+    if instance.receipt == 'NO_RECEIPT':
+        instance.receipt = sender.generate_receipt(instance)
         instance.save()
-

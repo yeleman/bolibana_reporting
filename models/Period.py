@@ -5,6 +5,7 @@
 from datetime import datetime, date, timedelta
 
 from django.db import models
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from bolibana_reporting.utils import week_from_weeknum, next_month
 
@@ -63,6 +64,8 @@ class Period(models.Model):
     class Meta:
         app_label = 'bolibana_reporting'
         unique_together = ('start_on', 'end_on', 'period_type')
+        verbose_name = _(u"Period")
+        verbose_name_plural = _(u"Periods")
 
     ONE_SECOND = 0.0001
     ONE_MICROSECOND = 0.00000000001
@@ -76,19 +79,20 @@ class Period(models.Model):
     CUSTOM = 'custom'
 
     PERIOD_TYPES = (
-        (DAY, u"Day"),
-        (WEEK, u"Week"),
-        (MONTH, u"Month"),
-        (QUARTER, u"Quarter"),
-        (SEMESTER, u"Semester"),
-        (YEAR, u"Year"),
-        (CUSTOM, u"Custom"),
+        (DAY, _(u"Day")),
+        (WEEK, _(u"Week")),
+        (MONTH, _(u"Month")),
+        (QUARTER, _(u"Quarter")),
+        (SEMESTER, _(u"Semester")),
+        (YEAR, _(u"Year")),
+        (CUSTOM, _(u"Custom")),
     )
 
-    start_on = models.DateTimeField()
-    end_on = models.DateTimeField()
+    start_on = models.DateTimeField(_(u"Start On"))
+    end_on = models.DateTimeField(_(u"End On"))
     period_type = models.CharField(max_length=15, \
-                                   choices=PERIOD_TYPES, default=CUSTOM)
+                                   choices=PERIOD_TYPES, default=CUSTOM, \
+                                   verbose_name=_(u"Type"))
 
     objects = models.Manager()
     days = DayManager()
@@ -122,7 +126,8 @@ class Period(models.Model):
             cls = eval(u"%sPeriod" % self.period_type.title())
             return cls.objects.get(id=self.id).name()
         except:
-            return self.middle().strftime('%c')
+            # TRANSLATORS: Python date format for Generic .name()
+            return self.middle().strftime(ugettext('%c'))
 
     def next(self):
         ''' returns next period in time '''
@@ -217,6 +222,8 @@ class DayPeriod(Period):
     class Meta:
         proxy = True
         app_label = 'bolibana_reporting'
+        verbose_name = _(u"Period")
+        verbose_name_plural = _(u"Periods")
 
     objects = DayManager()
 
@@ -225,7 +232,8 @@ class DayPeriod(Period):
         return cls.DAY
 
     def name(self):
-        return self.middle().strftime('%x')
+        # TRANSLATORS: Python's date format for DayPeriod.name()
+        return self.middle().strftime(ugettext('%x'))
 
     @classmethod
     def delta(self):
@@ -244,6 +252,8 @@ class MonthPeriod(Period):
     class Meta:
         proxy = True
         app_label = 'bolibana_reporting'
+        verbose_name = _(u"Period")
+        verbose_name_plural = _(u"Periods")
 
     objects = MonthManager()
 
@@ -252,7 +262,9 @@ class MonthPeriod(Period):
         return cls.MONTH
 
     def name(self):
-        return u"%s" % self.middle().strftime('%m %Y')
+        # TRANSLATORS: Python's date format for MonthPeriod.name()
+        return ugettext(u"%(formatted_date)s") % \
+                 {'formatted_date': self.middle().strftime(ugettext('%m %Y'))}
 
     @classmethod
     def delta(self):
@@ -268,11 +280,14 @@ class MonthPeriod(Period):
               - timedelta(cls.ONE_MICROSECOND)
         return (start, end)
 
+
 class YearPeriod(Period):
 
     class Meta:
         proxy = True
         app_label = 'bolibana_reporting'
+        verbose_name = _(u"Period")
+        verbose_name_plural = _(u"Periods")
 
     objects = YearManager()
 
@@ -281,7 +296,8 @@ class YearPeriod(Period):
         return cls.YEAR
 
     def name(self):
-        return self.middle().strftime('%Y')
+        # TRANSLATORS: Python's date format for YearPeriod.name()
+        return self.middle().strftime(ugettext('%Y'))
 
     @classmethod
     def delta(self):

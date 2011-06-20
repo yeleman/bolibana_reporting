@@ -4,7 +4,7 @@
 
 
 def week_from_weeknum(year, weeknum, is_iso=False):
-    ''' datetime tuple of start/end of week from a week number (and year) '''
+    """ datetime tuple of start/end of week from a week number (and year) """
     sy = datetime(year, 1, 1, 0, 0)
     ey = datetime(year, 12, 31, 23, 59)
     ONE_WEEK = 7
@@ -31,7 +31,7 @@ def week_from_weeknum(year, weeknum, is_iso=False):
 
 
 def next_month(year, month):
-    ''' next year and month as int from year and month '''
+    """ next year and month as int from year and month """
     if month < 12:
         return (year, month + 1)
     else:
