@@ -106,10 +106,14 @@ class ExcelForm(object):
             self.version = version
 
         self.filepath = filepath
-        self.read(sheet)
+        self.sheet = sheet
+        self.read()
 
-    def read(self, sheet):
+    def read(self, sheet=None):
         """ parses all fields in mapping and stores converted data """
+        if not sheet:
+            sheet = self.sheet
+
         # one can re-call read() at any time
         self.errors.reset()
 
