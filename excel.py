@@ -4,12 +4,15 @@
 
 import os
 import re
+import logging
 
 import xlrd
+from django.utils.translation import ugettext as _
 
 from bolibana_reporting.errors import (ErrorManager, MissingData, \
                                        IncorrectReportData)
-from django.utils.translation import ugettext as _
+
+logger = logging.getLogger(__name__)
 
 
 class ExcelTypeConverter(object):
@@ -125,10 +128,12 @@ class ExcelForm(object):
                 self.ws = book.sheets()[sheet]
             else:
                 self.ws = book.sheets()[0]
-        except:
-            raise
+        except Exception as e:
+            logger.warning(u"Unable to read Excel Uploaded file %(path)s. " \
+                           "Raised %(e)r" % {'path': self.filepath, 'e': e})
             self.errors.add(u"Impossible d'ouvrir le masque de saisie. " \
                             u"Le fichier est corrompu ou a été modifié.")
+            return
 
         for fieldid, field in self.mapping().items():
             self.map_field(field, fieldid)
