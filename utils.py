@@ -35,4 +35,4 @@ def next_month(year, month):
     if month < 12:
         return (year, month + 1)
     else:
-        return (year + 1, 0)
+        return (year + 1, 1)

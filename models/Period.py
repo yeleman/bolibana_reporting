@@ -138,7 +138,7 @@ class Period(models.Model):
     def boundaries(cls, date_obj):
         ''' start and end dates of a period from a date. '''
         start = date_obj - timedelta(cls.delta() / 2)
-        end = start + self.delta()
+        end = start + cls.delta()
         return (start, end)
 
     def includes(self, date_obj):
