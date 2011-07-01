@@ -168,7 +168,8 @@ class Period(models.Model):
 
     @classmethod
     def find_create_from(cls, year, month=None, day=None, \
-                         week=None, hour=None, minute=None, second=None):
+                         week=None, hour=None, minute=None, second=None, \
+                         dont_create=False):
 
         if not week and not month:
             # assume year search
@@ -194,12 +195,12 @@ class Period(models.Model):
 
         date_obj = datetime(year, month, day, hour, minute, second)
 
-        period = cls.find_create_by_date(date_obj)
+        period = cls.find_create_by_date(date_obj, dont_create)
 
         return period
 
     @classmethod
-    def find_create_by_date(cls, date_obj):
+    def find_create_by_date(cls, date_obj, dont_create=False):
         ''' creates a period to fit the provided date in '''
         if not isinstance(date_obj, datetime):
             date_obj = datetime.fromtimestamp(float(date_obj.strftime('%s')))
@@ -209,6 +210,8 @@ class Period(models.Model):
                                         if period.start_on <= date_obj \
                                         and period.end_on >= date_obj][0]
         except IndexError:
+            if dont_create:
+                raise
             period = cls.find_create_with(*cls.boundaries(date_obj))
             period.save()
         return period
