@@ -188,16 +188,16 @@ class ExcelForm(object):
         self.errors.add(_("%(data)s is not a valid data for %(field)s") \
                         % {'data': data, 'field': field.display_name()})
 
-    def is_valid(self):
+    def is_valid(self, *args, **kwargs):
         """ [override] complete with no errors ? """
         # check completeness
-        if self.is_complete():
+        if self.is_complete(*args, **kwargs):
             # check for errors
-            self.validate()
+            self.validate(*args, **kwargs)
 
         return self.errors.count() == 0
 
-    def is_complete(self):
+    def is_complete(self, *args, **kwargs):
         """ [override] required fields filled? """
         return False
 
