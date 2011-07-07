@@ -114,6 +114,11 @@ class Period(models.Model):
         ''' timedelta() length of a period. 1 = one day. '''
         return 1 / 24
 
+    @property
+    def pid(self):
+        ''' A locale safe identifier of the period '''
+        return self.middle().strftime('%s')
+
     def middle(self):
         ''' datetime at half of the period duration '''
         return self.start_on + ((self.end_on - self.start_on) / 2)
@@ -274,6 +279,10 @@ class MonthPeriod(Period):
     @classmethod
     def type(cls):
         return cls.MONTH
+
+    @property
+    def pid(self):
+        return self.middle().strftime('%m%Y')
 
     def name(self):
         # Translators: Python's date format for MonthPeriod.name()
