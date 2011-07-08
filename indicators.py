@@ -8,6 +8,16 @@ from inspect import getmembers, ismethod
 from bolibana_reporting.models.Options import Options
 
 
+def blank(func):
+    """ decorator adding _is_blank attribute """
+    func._is_blank = True
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        return func(*args, **kwargs)
+    return func
+
+
 def reference(func):
     """ decorator adding _is_reference attribute """
     func._is_reference = True
@@ -65,11 +75,19 @@ class IndicatorTable(object):
 
     # sub-class level default options
     default_options = {}
+    name = u""
+    caption = u""
+    title = u""
+    type = 'table'
 
     def __init__(self, entity, periods, *args, **kwargs):
         self.entity = entity
         self.periods = periods
         self.setup(kwargs)
+
+    @property
+    def id(self):
+        return self.__class__.__name__.lower()
 
     def setup(self, options):
         """ prepares the self.options dict with all options found
@@ -101,6 +119,10 @@ class IndicatorTable(object):
         """ is the requested line a reference one ? """
         return hasattr(getattr(self, name), '_is_reference')
 
+    def line_is_blank(self, name):
+        """ is the requested line a blank one ? """
+        return hasattr(getattr(self, name), '_is_blank')
+
     def line_index_slug(self, name):
         """ sorting-safe index slug for a line """
         try:
@@ -119,8 +141,15 @@ class IndicatorTable(object):
 
     def get_line_data(self, name):
         """ build line data dictionary """
+
+        is_blank = self.line_is_blank(name)
+
         # create stub dict for the line
-        line_data = {'label': self.get_line_label(name), 'values': {}}
+        line_data = {'label': self.get_line_label(name), 'values': {}, \
+                     'blank': is_blank}
+
+        if is_blank:
+            return line_data
 
         # loop on periods (columns)
         for period in self.periods:
