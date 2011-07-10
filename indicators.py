@@ -71,7 +71,8 @@ class IndicatorTable(object):
     # can be override.
     main_default_options = {'with_data': True, \
                             'with_total': False, \
-                            'with_reference': True}
+                            'with_reference': True, \
+                            'only_percent': False}
 
     # sub-class level default options
     default_options = {}
@@ -139,6 +140,16 @@ class IndicatorTable(object):
         """ [to override] is the current Period valid in terms of data ? """
         return True
 
+    @property
+    def columns(self):
+        """ the number of `columns` composing the table """
+        columns = 1 + len(self.periods)
+        if self.options.with_percentage:
+            columns += len(self.periods)
+        if self.options.with_total:
+            columns += 1
+        return columns
+
     def get_line_data(self, name):
         """ build line data dictionary """
 
@@ -146,7 +157,7 @@ class IndicatorTable(object):
 
         # create stub dict for the line
         line_data = {'label': self.get_line_label(name), 'values': {}, \
-                     'blank': is_blank}
+                     'blank': is_blank, 'reference': self.line_is_ref(name)}
 
         if is_blank:
             return line_data
