@@ -80,6 +80,7 @@ class IndicatorTable(object):
     caption = u""
     title = u""
     type = 'table'
+    graph_type = 'column'
 
     def __init__(self, entity, periods, *args, **kwargs):
         self.entity = entity
