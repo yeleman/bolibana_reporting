@@ -38,3 +38,8 @@ class Entity(MPTTModel):
     def display_code_name(self):
         return ugettext(u"%(code)s/%(name)s") % \
                {'code': self.slug, 'name': self.display_name()}
+
+    def parent_level(self):
+        if self.parent:
+            return self.parent.type
+        return self.parent

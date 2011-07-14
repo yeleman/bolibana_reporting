@@ -7,6 +7,7 @@ from django.contrib import admin
 
 class EntityAdmin(admin.ModelAdmin):
 
+    list_display = ('slug', 'name', 'type', 'parent', 'parent_level')
     list_filter = ('type', 'parent')
     ordering = ('slug',)
     search_fields = ('slug', 'name')

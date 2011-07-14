@@ -8,7 +8,7 @@ from bolibana_reporting.errors import ErrorManager
 class Options(dict, object):
 
     def __init__(self, **kwargs):
-        dict.__init__(self,**kwargs)
+        dict.__init__(self, **kwargs)
 
     def __getattribute__(self, name):
         try:

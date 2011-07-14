@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PNLP2011\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-20 13:58+0000\n"
-"PO-Revision-Date: 2011-06-20 14:05-0000\n"
+"POT-Creation-Date: 2011-07-14 19:07+0000\n"
+"PO-Revision-Date: 2011-07-14 19:08-0000\n"
 "Last-Translator: renaud gaudin <reg@yeleman.com>\n"
 "Language-Team: \n"
 "Language: \n"
@@ -17,13 +17,13 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Poedit-SearchPath-0: /home/reg/src/bolibana/bolibana_reporting\n"
 
-#: excel.py:179
+#: excel.py:188
 #, python-format
 msgid "%(data)s is not a valid data for %(field)s"
 msgstr "%(data)s n'est pas une donnée valide pour %(field)s"
 
 #: models/Entity.py:14
-#: models/Report.py:53
+#: models/Report.py:68
 msgid "Entity"
 msgstr "Entité"
 
@@ -43,7 +43,7 @@ msgstr "Code"
 
 #: models/Entity.py:20
 #: models/Period.py:95
-#: models/Report.py:46
+#: models/Report.py:61
 msgid "Type"
 msgstr "Type"
 
@@ -51,12 +51,12 @@ msgstr "Type"
 msgid "Parent"
 msgstr "Parent"
 
-#: models/Entity.py:32
+#: models/Entity.py:33
 #, python-format
 msgid "%(name)s/%(parent)s"
 msgstr "%(name)s/%(parent)s"
 
-#: models/Entity.py:37
+#: models/Entity.py:39
 #, python-format
 msgid "%(code)s/%(name)s"
 msgstr "%(code)s/%(name)s"
@@ -70,17 +70,17 @@ msgid "Entity Types"
 msgstr "Types d'entité"
 
 #: models/Period.py:67
-#: models/Period.py:225
-#: models/Period.py:255
-#: models/Period.py:289
-#: models/Report.py:51
+#: models/Period.py:244
+#: models/Period.py:274
+#: models/Period.py:317
+#: models/Report.py:66
 msgid "Period"
 msgstr "Période"
 
 #: models/Period.py:68
-#: models/Period.py:226
-#: models/Period.py:256
-#: models/Period.py:290
+#: models/Period.py:245
+#: models/Period.py:275
+#: models/Period.py:318
 msgid "Periods"
 msgstr "Périodes"
 
@@ -120,73 +120,79 @@ msgstr "Début"
 msgid "End On"
 msgstr "Fin"
 
-#: models/Period.py:130
+#: models/Period.py:135
 #, python-format
 msgid "%c"
 msgstr "%c"
 
 #. Translators: Python's date format for DayPeriod.name()
-#: models/Period.py:236
+#: models/Period.py:255
 #, python-format
 msgid "%x"
 msgstr "%x"
 
 #. Translators: Python's date format for MonthPeriod.name()
-#: models/Period.py:266
+#. Translators: Python's date format for MonthPeriod.full_name()
+#: models/Period.py:289
+#: models/Period.py:294
 #, python-format
 msgid "%(formatted_date)s"
 msgstr "%(formatted_date)s"
 
-#: models/Period.py:267
+#: models/Period.py:290
 msgid "%m %Y"
 msgstr "%m %Y"
 
+#: models/Period.py:295
+msgid "%B %Y"
+msgstr "%B %Y"
+
 #. Translators: Python's date format for YearPeriod.name()
-#: models/Period.py:300
+#: models/Period.py:328
 msgid "%Y"
 msgstr "%Y"
 
-#: models/Report.py:35
+#: models/Report.py:49
 msgid "Source"
 msgstr "Source"
 
-#: models/Report.py:35
+#: models/Report.py:49
 msgid "Aggregated"
 msgstr "Agrégé"
 
-#: models/Report.py:40
+#: models/Report.py:54
 msgid "Report"
 msgstr "Rapport"
 
-#: models/Report.py:41
+#: models/Report.py:55
 msgid "Reports"
 msgstr "Rapports"
 
-#: models/Report.py:45
+#: models/Report.py:60
 msgid "Status"
 msgstr "Statut"
 
-#: models/Report.py:49
+#: models/Report.py:64
 msgid "Receipt"
 msgstr "Reçu"
 
-#: models/Report.py:56
+#: models/Report.py:71
 msgid "Created By"
 msgstr "Créé par"
 
-#: models/Report.py:58
+#: models/Report.py:73
 msgid "Created On"
 msgstr "Créé le"
 
-#: models/Report.py:61
+#: models/Report.py:76
 msgid "Modified By"
 msgstr "Modifié par"
 
-#: models/Report.py:63
+#: models/Report.py:78
 msgid "Modified On"
 msgstr "Modifié le"
 
-#: models/Report.py:66
+#: models/Report.py:86
 #, python-format
 msgid "%(entity)s/%(period)s"
 msgstr "%(entity)s/%(period)s"
