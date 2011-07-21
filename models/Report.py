@@ -59,7 +59,7 @@ class Report(models.Model):
                                           default=STATUS_CREATED, \
                                           verbose_name=_(u"Status"))
     type = models.PositiveIntegerField(choices=TYPES, verbose_name=_(u"Type"))
-    receipt = models.CharField(max_length=15, unique=True, \
+    receipt = models.CharField(max_length=20, unique=True, \
                                blank=True, null=False, \
                                verbose_name=_(u"Receipt"))
     period = models.ForeignKey('Period', related_name='reports', \
